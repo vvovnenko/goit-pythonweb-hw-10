@@ -1,7 +1,7 @@
 from datetime import datetime, date
 
-from sqlalchemy import Integer, String, func
-from sqlalchemy.orm import mapped_column, Mapped, DeclarativeBase
+from sqlalchemy import Integer, String, func, ForeignKey
+from sqlalchemy.orm import mapped_column, Mapped, DeclarativeBase, relationship
 from sqlalchemy.sql.sqltypes import DateTime, Date
 
 
@@ -23,3 +23,19 @@ class Contact(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now()
     )
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    user: Mapped["User"] = relationship(back_populates="contacts")
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    username: Mapped[str] = mapped_column(String(50), unique=True)
+    email: Mapped[str] = mapped_column(String(150), unique=True)
+    hashed_password: Mapped[str] = mapped_column(String)
+    avatar: Mapped[str] = mapped_column(String(255), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+    contacts: Mapped[list["Contact"]] = relationship(back_populates="user")

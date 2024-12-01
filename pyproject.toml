@@ -13,6 +13,9 @@ asyncpg = "^0.30.0"
 uvicorn = "^0.32.1"
 fastapi = {extras = ["standard"], version = "^0.115.5"}
 pydantic-settings = "^2.6.1"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+libgravatar = "^1.0.4"
 
 
 [build-system]

@@ -1,12 +1,12 @@
 from fastapi import FastAPI
 
 from src.api import utils, contacts
-from src.conf.config import Config
 
 app = FastAPI()
 
-app.include_router(utils.router, prefix=Config.API_PREFIX)
-app.include_router(contacts.router, prefix=Config.API_PREFIX)
+API_PREFIX = "/api"
+app.include_router(utils.router, prefix=API_PREFIX)
+app.include_router(contacts.router, prefix=API_PREFIX)
 
 if __name__ == "__main__":
     import uvicorn

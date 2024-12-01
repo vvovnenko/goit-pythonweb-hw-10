@@ -1,5 +1,16 @@
-class Config:
-    DB_URL = "postgresql+asyncpg://postgres:password@localhost:54322/postgres"
-    API_PREFIX = "/api"
+from pydantic import ConfigDict
+from pydantic_settings import BaseSettings
 
-config = Config
+
+class Settings(BaseSettings):
+    DB_URL: str
+
+    model_config = ConfigDict(
+        extra="ignore",
+        env_file="../.env",
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+    )
+
+
+config = Settings()

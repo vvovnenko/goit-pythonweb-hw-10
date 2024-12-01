@@ -15,6 +15,10 @@ class Settings(BaseSettings):
     MAIL_SERVER: str
     MAIL_FROM_NAME: str = "Notes Service"
 
+    CLD_NAME: str
+    CLD_API_KEY: int
+    CLD_API_SECRET: str
+
     model_config = ConfigDict(
         extra="ignore",
         env_file=".env",

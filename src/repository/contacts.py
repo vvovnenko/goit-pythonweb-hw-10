@@ -4,7 +4,7 @@ from datetime import date, timedelta
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.database.models import Contact
+from src.database.models import Contact, User
 from src.schemas.contacts import ContactModel
 
 
@@ -12,8 +12,8 @@ class ContactsRepository:
     def __init__(self, session: AsyncSession):
         self.db = session
 
-    async def create_contact(self, body: ContactModel) -> Contact:
-        contact = Contact(**body.model_dump(exclude_unset=True))
+    async def create_contact(self, body: ContactModel, user: User) -> Contact:
+        contact = Contact(**body.model_dump(exclude_unset=True), user=user)
         self.db.add(contact)
         await self.db.commit()
         await self.db.refresh(contact)
@@ -21,6 +21,7 @@ class ContactsRepository:
 
     async def read_contacts(
         self,
+        user: User,
         firstname: Optional[str] = None,
         lastname: Optional[str] = None,
         email: Optional[str] = None,
@@ -28,7 +29,7 @@ class ContactsRepository:
         skip: int = 0,
         limit: int = 10,
     ) -> List[Contact]:
-        stmt = select(Contact).offset(skip).limit(limit)
+        stmt = select(Contact).filter_by(user=user).offset(skip).limit(limit)
 
         if firstname:
             stmt = stmt.where(Contact.firstname.match(firstname))
@@ -47,15 +48,15 @@ class ContactsRepository:
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 
-    async def read_contact(self, contact_id: int) -> Optional[Contact]:
-        stmt = select(Contact).filter_by(id=contact_id)
+    async def read_contact(self, contact_id: int, user: User) -> Optional[Contact]:
+        stmt = select(Contact).filter_by(id=contact_id, user=user)
         result = await self.db.execute(stmt)
         return result.scalar_one_or_none()
 
     async def update_contact(
-        self, contact_id: int, body: ContactModel
+        self, contact_id: int, body: ContactModel, user: User
     ) -> Optional[Contact]:
-        contact = await self.read_contact(contact_id)
+        contact = await self.read_contact(contact_id, user)
         if contact:
             for key, value in body.model_dump(exclude_unset=True).items():
                 setattr(contact, key, value)
@@ -63,8 +64,8 @@ class ContactsRepository:
             await self.db.refresh(contact)
         return contact
 
-    async def delete_contact(self, contact_id: int) -> Optional[Contact]:
-        contact = await self.read_contact(contact_id)
+    async def delete_contact(self, contact_id: int, user: User) -> Optional[Contact]:
+        contact = await self.read_contact(contact_id, user)
         if contact:
             await self.db.delete(contact)
             await self.db.commit()

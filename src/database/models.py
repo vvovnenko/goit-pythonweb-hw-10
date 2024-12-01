@@ -1,6 +1,6 @@
 from datetime import datetime, date
 
-from sqlalchemy import Integer, String, func, ForeignKey
+from sqlalchemy import Integer, String, func, ForeignKey, Boolean
 from sqlalchemy.orm import mapped_column, Mapped, DeclarativeBase, relationship
 from sqlalchemy.sql.sqltypes import DateTime, Date
 
@@ -39,3 +39,4 @@ class User(Base):
     avatar: Mapped[str] = mapped_column(String(255), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     contacts: Mapped[list["Contact"]] = relationship(back_populates="user")
+    is_confirmed: Mapped[Boolean] = mapped_column(Boolean, default=False, nullable=True)
